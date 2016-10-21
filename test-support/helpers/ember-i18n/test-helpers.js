@@ -14,9 +14,14 @@ Ember.Test.registerHelper('expectTranslation', function(app, element, key, inter
 });
 
 const assertTranslation = (function() {
-  if (typeof QUnit !== 'undefined' && typeof ok === 'function') {
+
+  if (typeof QUnit !== 'undefined' && (typeof Ember.get(window, 'ok') === 'function' || typeof Ember.get(QUnit, 'assert.ok') === 'function')) {
+    let assert = Ember.get(QUnit, 'assert') || {};
+    if (typeof assert.ok !== 'function') {
+      assert.ok = Ember.get(window.ok);
+    }
     return function(element, key, text) {
-      ok(find(`${element}:contains(${text})`).length, `Found translation key ${key} in ${element}`);
+      assert.ok(find(`${element}:contains(${text})`).length, `Found translation key ${key} in ${element}`);
     };
   } else if (typeof expect === 'function') {
     return function(element, key, text) {
